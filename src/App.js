@@ -26,7 +26,7 @@ const DEFAULT_OPTIONS = [
   },
   {
     name:'Saturation',
-    property:'saturation',
+    property:'saturate',
     value: 100,
     range: {
       min: 0,
@@ -47,10 +47,10 @@ const DEFAULT_OPTIONS = [
   {
     name:'Sepia',
     property:'sepia',
-    value: 100,
+    value: 0,
     range: {
       min: 0,
-      max: 200
+      max: 100
     },
     unit: '%'
   },
@@ -77,17 +77,54 @@ const DEFAULT_OPTIONS = [
 ]
 
 function App() {
+  const [selectedIndex, setSelectedIndex] = useState(0)
   const [options, setOptions] = useState(DEFAULT_OPTIONS)
+  const selectedItem = options[selectedIndex]
+
+  function handleSliderChange({target}){
+    setOptions((prevOptions) => {
+      return prevOptions.map((option, index) => {
+        if(index !== selectedIndex) return option
+          return {...option, value:target.value}
+        })
+    })
+    }
+ 
+    function getImageStyle(){
+      const filter = options.map(option => {
+
+        return `${option.property}(${option.value}${option.unit})`
+      })
+
+      return {filter: filter.join(' ')}
+    }
+
   return (
     <div className="container">
-      <div className="main-image" />
+      <div className="main-image" style={getImageStyle()} />
         <div className="sidebar">
-            <SidebarItem />
-            <SidebarItem />
+            {
+              options.map((option, index) => {
+                return <SidebarItem
+                active={selectedIndex === index}
+                key={index}
+                name={option.name}
+                handleClick={() => setSelectedIndex(index)}
+                />
+              })
+            }
         </div>
-      <Slider />
+      <Slider 
+      min={selectedItem.range.min}
+      màx={selectedItem.range.max}
+      value={selectedItem.value}
+      handleChange={handleSliderChange}
+      />
     </div>
   );
 }
 
 export default App;
+
+
+
